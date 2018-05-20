@@ -35,6 +35,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	
+
 	///Private functions
 private:
 	UInputComponent *PlayersInput = nullptr;
@@ -44,5 +46,6 @@ private:
 	void FindInputComponent();
 	void FindPhysicsHandle();
 	FHitResult LineTrace();
+	void HoldingGrabbableObject();
 };
 

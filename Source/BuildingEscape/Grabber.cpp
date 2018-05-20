@@ -34,16 +34,22 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-
-	 if(PhysicsHandle->GrabbedComponent)
-	 {
-		 FVector PlayerLocation;
-		 FRotator PlayerRotation;
-		 GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerLocation, PlayerRotation);
-		 FVector LineTraceEnd = PlayerLocation + PlayerRotation.Vector() * distance;
-		 PhysicsHandle->SetTargetLocation(LineTraceEnd);
-	 }
 	
+	HoldingGrabbableObject();
+
+	
+}
+
+void UGrabber::HoldingGrabbableObject()
+{
+	if (PhysicsHandle->GrabbedComponent)
+	{
+		FVector PlayerLocation;
+		FRotator PlayerRotation;
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerLocation, PlayerRotation);
+		FVector LineTraceEnd = PlayerLocation + PlayerRotation.Vector() * distance;
+		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+	}
 }
 
 void UGrabber::BindPlayerInput()
@@ -56,11 +62,12 @@ void UGrabber::Grab()
 {
 	UE_LOG(LogTemp,Warning,TEXT("grab was pressed"))
 	
-	auto HitResult = LineTrace();
+		auto HitResult = LineTrace();
 	auto ComponentToGrab = HitResult.GetComponent();
 	auto ActorHit = HitResult.GetActor();
-	if (ActorHit)
-		PhysicsHandle->GrabComponent(ComponentToGrab, NAME_None, ComponentToGrab->GetOwner()->GetActorLocation(), true);
+	auto ActorRotation = ComponentToGrab->RelativeRotation;
+	if(ActorHit)
+	PhysicsHandle->GrabComponentAtLocationWithRotation(ComponentToGrab,NAME_None,ActorHit->GetActorLocation(),ActorRotation);
 }
 
 void UGrabber::GrabRelease()
@@ -95,7 +102,9 @@ FHitResult UGrabber::LineTrace()
 	FRotator PlayerRotation;
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(PlayerLocation,PlayerRotation);
 	FVector LineTraceEnd = PlayerLocation + PlayerRotation.Vector() * distance;
-	if (GetWorld()->LineTraceSingleByObjectType(hit,PlayerLocation,LineTraceEnd,FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),FCollisionQueryParams(false)))
+	 FCollisionQueryParams CollisionParams (FName(TEXT("")),false,GetOwner());
+	if (GetWorld()->LineTraceSingleByObjectType(hit,PlayerLocation,LineTraceEnd,FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),CollisionParams))
 	UE_LOG(LogTemp,Warning, TEXT("hit object %s"), *(hit.GetActor()->GetName()))
-	return hit; 
+	return hit;
+	
 }
