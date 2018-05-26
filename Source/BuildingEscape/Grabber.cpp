@@ -42,6 +42,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 
 void UGrabber::HoldingGrabbableObject()
 {
+	if(!PhysicsHandle) {return;}
 	if (PhysicsHandle->GrabbedComponent)
 	{
 		FVector PlayerLocation;
@@ -61,7 +62,7 @@ void UGrabber::BindPlayerInput()
 void UGrabber::Grab()
 {
 	UE_LOG(LogTemp,Warning,TEXT("grab was pressed"))
-	
+	if(!PhysicsHandle){return;}
 		auto HitResult = LineTrace();
 	auto ComponentToGrab = HitResult.GetComponent();
 	auto ActorHit = HitResult.GetActor();
@@ -73,6 +74,7 @@ void UGrabber::Grab()
 void UGrabber::GrabRelease()
 {
 	UE_LOG(LogTemp,Warning,TEXT("grab was Released"))
+	if(!PhysicsHandle){return;}
 		PhysicsHandle->ReleaseComponent();
 }
 void UGrabber::FindInputComponent()
